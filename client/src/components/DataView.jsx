@@ -15,9 +15,7 @@ export default function DataView({ type, analysis, result, onReset }) {
                     <h2 style={{
                         margin: '0 0 0.5rem 0',
                         fontSize: '2rem',
-                        background: 'var(--secondary-gradient)',
-                        WebkitBackgroundClip: 'text',
-                        WebkitTextFillColor: 'transparent',
+                        color: 'var(--text-main)',
                         fontWeight: 800
                     }}>
                         Mission Accomplished
@@ -30,7 +28,7 @@ export default function DataView({ type, analysis, result, onReset }) {
                     <button className="btn btn-secondary" onClick={onReset}>
                         <RefreshCw size={18} /> New Task
                     </button>
-                    <button className="btn" onClick={handleDownload} style={{ background: 'var(--secondary-gradient)' }}>
+                    <button className="btn" onClick={handleDownload} style={{ background: 'var(--primary)' }}>
                         <Download size={18} /> Download Asset
                     </button>
                 </div>
@@ -43,18 +41,18 @@ export default function DataView({ type, analysis, result, onReset }) {
                             <div className="stat-value">{result.stats.original_rows.toLocaleString()}</div>
                             <div className="stat-label">Original Rows</div>
                         </div>
-                        <div className="stat-card" style={{ borderColor: 'rgba(16, 185, 129, 0.2)' }}>
-                            <div className="stat-value" style={{ color: '#34d399' }}>
+                        <div className="stat-card" style={{ borderColor: '#d1fae5' }}>
+                            <div className="stat-value" style={{ color: '#059669' }}>
                                 {result.stats.cleaned_rows.toLocaleString()}
                             </div>
                             <div className="stat-label">Cleaned Rows</div>
                         </div>
-                        <div className="stat-card" style={{ borderColor: 'rgba(239, 68, 68, 0.2)' }}>
-                            <div className="stat-value" style={{ color: '#f87171' }}>
+                        <div className="stat-card" style={{ borderColor: '#fee2e2' }}>
+                            <div className="stat-value" style={{ color: '#dc2626' }}>
                                 {result.stats.removed_rows.toLocaleString()}
                             </div>
                             <div className="stat-label">Rows Removed</div>
-                            <div style={{ fontSize: '0.8rem', color: '#a1a1aa', marginTop: '0.2rem' }}>
+                            <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
                                 {result.report.outliers_removed} Outliers • {result.report.duplicates_removed} Duplicates
                             </div>
                         </div>
@@ -62,8 +60,8 @@ export default function DataView({ type, analysis, result, onReset }) {
                 )}
 
                 {type === 'image' && (
-                    <div className="stat-card" style={{ borderColor: 'rgba(59, 130, 246, 0.2)' }}>
-                        <div className="stat-value" style={{ color: '#60a5fa' }}>100%</div>
+                    <div className="stat-card" style={{ borderColor: '#dbeafe' }}>
+                        <div className="stat-value" style={{ color: '#2563eb' }}>100%</div>
                         <div className="stat-label">Noise Filtered</div>
                     </div>
                 )}
@@ -78,11 +76,11 @@ export default function DataView({ type, analysis, result, onReset }) {
                 {type === 'tabular' && result?.report && (
                     <div style={{ marginBottom: '2rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                         {result.report.removed_columns.length > 0 && (
-                            <div style={{ background: 'rgba(239, 68, 68, 0.1)', padding: '1rem', borderRadius: '0.5rem', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
-                                <h4 style={{ margin: '0 0 0.5rem 0', color: '#f87171', fontSize: '0.9rem' }}>REMOVED COLUMNS (High Nulls)</h4>
+                            <div style={{ background: '#fef2f2', padding: '1rem', borderRadius: '0.5rem', border: '1px solid #fee2e2' }}>
+                                <h4 style={{ margin: '0 0 0.5rem 0', color: '#dc2626', fontSize: '0.9rem' }}>REMOVED COLUMNS (High Nulls)</h4>
                                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
                                     {result.report.removed_columns.map(col => (
-                                        <span key={col} style={{ background: 'rgba(0,0,0,0.2)', padding: '0.2rem 0.6rem', borderRadius: '4px', fontSize: '0.8rem', color: '#e4e4e7' }}>
+                                        <span key={col} style={{ background: 'white', padding: '0.2rem 0.6rem', borderRadius: '4px', fontSize: '0.8rem', color: '#7f1d1d', border: '1px solid #fecaca' }}>
                                             {col}
                                         </span>
                                     ))}
@@ -91,11 +89,11 @@ export default function DataView({ type, analysis, result, onReset }) {
                         )}
 
                         {result.report.imputed_columns.length > 0 && (
-                            <div style={{ background: 'rgba(59, 130, 246, 0.1)', padding: '1rem', borderRadius: '0.5rem', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
-                                <h4 style={{ margin: '0 0 0.5rem 0', color: '#60a5fa', fontSize: '0.9rem' }}>IMPUTED COLUMNS</h4>
+                            <div style={{ background: '#eff6ff', padding: '1rem', borderRadius: '0.5rem', border: '1px solid #dbeafe' }}>
+                                <h4 style={{ margin: '0 0 0.5rem 0', color: '#2563eb', fontSize: '0.9rem' }}>IMPUTED COLUMNS</h4>
                                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
                                     {result.report.imputed_columns.map(col => (
-                                        <span key={col} style={{ background: 'rgba(0,0,0,0.2)', padding: '0.2rem 0.6rem', borderRadius: '4px', fontSize: '0.8rem', color: '#e4e4e7' }}>
+                                        <span key={col} style={{ background: 'white', padding: '0.2rem 0.6rem', borderRadius: '4px', fontSize: '0.8rem', color: '#1e3a8a', border: '1px solid #bfdbfe' }}>
                                             {col}
                                         </span>
                                     ))}
@@ -107,15 +105,15 @@ export default function DataView({ type, analysis, result, onReset }) {
 
                 {/* Logic Reasoning Display */}
                 {result?.plan?.reasoning && (
-                    <div style={{ marginBottom: '2rem', background: 'rgba(0,0,0,0.3)', padding: '1.5rem', borderRadius: '0.75rem', border: '1px solid rgba(255,255,255,0.05)' }}>
-                        <h4 style={{ margin: '0 0 1rem 0', color: '#a1a1aa', fontFamily: 'var(--font-mono)', fontSize: '0.9rem' }}>EXECUTION LOG:</h4>
-                        <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontFamily: 'var(--font-mono)', color: '#e4e4e7' }}>
+                    <div style={{ marginBottom: '2rem', background: '#f8fafc', padding: '1.5rem', borderRadius: '0.75rem', border: '1px solid #e2e8f0' }}>
+                        <h4 style={{ margin: '0 0 1rem 0', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', fontSize: '0.9rem' }}>EXECUTION LOG:</h4>
+                        <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontFamily: 'var(--font-mono)', color: 'var(--text-main)', fontSize: '0.9rem' }}>
                             {result.plan.reasoning.map((r, i) => (
                                 <li key={i} style={{ marginBottom: '0.5rem', display: 'flex', gap: '0.8rem' }}>
                                     <span style={{ color: 'var(--primary)' }}>{'>'}</span> {r}
                                 </li>
                             ))}
-                            <li style={{ color: '#10b981', marginTop: '1rem', display: 'flex', gap: '0.8rem' }}>
+                            <li style={{ color: '#059669', marginTop: '1rem', display: 'flex', gap: '0.8rem' }}>
                                 <span>{'>'}</span> STATUS: OPTIMIZED
                             </li>
                         </ul>
@@ -134,11 +132,11 @@ export default function DataView({ type, analysis, result, onReset }) {
                             />
                         </div>
                         <div className="comparison-col">
-                            <p style={{ textAlign: 'center', color: '#10b981', marginBottom: '1rem', fontFamily: 'var(--font-mono)' }}>PROCESSED OUTPUT</p>
+                            <p style={{ textAlign: 'center', color: '#059669', marginBottom: '1rem', fontFamily: 'var(--font-mono)' }}>PROCESSED OUTPUT</p>
                             <img
                                 src={`http://localhost:8000${result.download_url}`}
                                 className="comparison-img"
-                                style={{ boxShadow: '0 0 30px rgba(16, 185, 129, 0.2)', borderColor: '#059669' }}
+                                style={{ boxShadow: '0 0 20px rgba(16, 185, 129, 0.1)', borderColor: '#059669' }}
                                 alt="Cleaned"
                             />
                         </div>

@@ -67,10 +67,9 @@ function App() {
     <div className="container">
       {status === 'idle' && (
         <div className="hero-text">
-          <h1 className="hero-title">NEBULA AGENT</h1>
+          <h1 className="hero-title">DATA SANCT</h1>
           <p className="hero-subtitle">
-            Autonomous Data Purification System. <br />
-            Powered by Generative Intelligence.
+            Sanctify your data. Amplify your intelligence, Created by Ramya Pravallika Chadalavada.
           </p>
         </div>
       )}
