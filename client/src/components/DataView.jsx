@@ -37,7 +37,7 @@ export default function DataView({ type, analysis, result, onReset }) {
             </div>
 
             <div className="stats-grid">
-                {type === 'tabular' && result?.stats && (
+                {type === 'tabular' && result?.stats && result?.report && (
                     <>
                         <div className="stat-card">
                             <div className="stat-value">{result.stats.original_rows.toLocaleString()}</div>
@@ -53,7 +53,10 @@ export default function DataView({ type, analysis, result, onReset }) {
                             <div className="stat-value" style={{ color: '#f87171' }}>
                                 {result.stats.removed_rows.toLocaleString()}
                             </div>
-                            <div className="stat-label">Anomalies Burned</div>
+                            <div className="stat-label">Rows Removed</div>
+                            <div style={{ fontSize: '0.8rem', color: '#a1a1aa', marginTop: '0.2rem' }}>
+                                {result.report.outliers_removed} Outliers • {result.report.duplicates_removed} Duplicates
+                            </div>
                         </div>
                     </>
                 )}
@@ -70,6 +73,37 @@ export default function DataView({ type, analysis, result, onReset }) {
                 <h3 style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
                     <FileText className="text-muted" /> Agent Report
                 </h3>
+
+                {/* Tabular Cleanup Report */}
+                {type === 'tabular' && result?.report && (
+                    <div style={{ marginBottom: '2rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                        {result.report.removed_columns.length > 0 && (
+                            <div style={{ background: 'rgba(239, 68, 68, 0.1)', padding: '1rem', borderRadius: '0.5rem', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
+                                <h4 style={{ margin: '0 0 0.5rem 0', color: '#f87171', fontSize: '0.9rem' }}>REMOVED COLUMNS (High Nulls)</h4>
+                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                                    {result.report.removed_columns.map(col => (
+                                        <span key={col} style={{ background: 'rgba(0,0,0,0.2)', padding: '0.2rem 0.6rem', borderRadius: '4px', fontSize: '0.8rem', color: '#e4e4e7' }}>
+                                            {col}
+                                        </span>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {result.report.imputed_columns.length > 0 && (
+                            <div style={{ background: 'rgba(59, 130, 246, 0.1)', padding: '1rem', borderRadius: '0.5rem', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
+                                <h4 style={{ margin: '0 0 0.5rem 0', color: '#60a5fa', fontSize: '0.9rem' }}>IMPUTED COLUMNS</h4>
+                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                                    {result.report.imputed_columns.map(col => (
+                                        <span key={col} style={{ background: 'rgba(0,0,0,0.2)', padding: '0.2rem 0.6rem', borderRadius: '4px', fontSize: '0.8rem', color: '#e4e4e7' }}>
+                                            {col}
+                                        </span>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                )}
 
                 {/* Logic Reasoning Display */}
                 {result?.plan?.reasoning && (

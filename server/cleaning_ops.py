@@ -4,14 +4,29 @@ import cv2
 
 class CleaningOps:
     @staticmethod
-    def clean_tabular(df: pd.DataFrame, plan: list) -> pd.DataFrame:
+    def clean_tabular(df: pd.DataFrame, plan: list) -> tuple[pd.DataFrame, dict]:
         df_clean = df.copy()
+        report = {
+            "removed_columns": [],
+            "imputed_columns": [],
+            "outliers_removed": 0,
+            "duplicates_removed": 0,
+            "dropped_rows": 0
+        }
         
         for step in plan:
             action = step.get("action")
             
-            if action == "drop_duplicates":
+            if action == "drop_columns":
+                cols = step.get("columns", [])
+                df_clean.drop(columns=cols, inplace=True, errors='ignore')
+                report["removed_columns"].extend(cols)
+
+            elif action == "drop_duplicates":
+                before = len(df_clean)
                 df_clean.drop_duplicates(inplace=True)
+                report["duplicates_removed"] = before - len(df_clean)
+                report["dropped_rows"] += (before - len(df_clean))
                 
             elif action == "impute_or_drop":
                 details = step.get("details", {})
@@ -20,14 +35,18 @@ class CleaningOps:
                     
                     if method == "mean":
                         df_clean[col].fillna(df_clean[col].mean(), inplace=True)
+                        report["imputed_columns"].append(f"{col} (mean)")
                     elif method == "median":
                         df_clean[col].fillna(df_clean[col].median(), inplace=True)
+                        report["imputed_columns"].append(f"{col} (median)")
                     elif method == "mode":
                         if not df_clean[col].mode().empty:
                             df_clean[col].fillna(df_clean[col].mode()[0], inplace=True)
+                            report["imputed_columns"].append(f"{col} (mode)")
             
             elif action == "iqr_filter":
                 cols = step.get("columns", [])
+                initial_rows = len(df_clean)
                 for col in cols:
                     if col not in df_clean.columns: continue
                     Q1 = df_clean[col].quantile(0.25)
@@ -37,8 +56,12 @@ class CleaningOps:
                     upper_bound = Q3 + 1.5 * IQR
                     # Filter
                     df_clean = df_clean[(df_clean[col] >= lower_bound) & (df_clean[col] <= upper_bound)]
+                
+                removed = initial_rows - len(df_clean)
+                report["outliers_removed"] += removed
+                report["dropped_rows"] += removed
                     
-        return df_clean
+        return df_clean, report
 
     @staticmethod
     def clean_image(image_path: str, output_path: str, plan: list):

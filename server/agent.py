@@ -71,22 +71,41 @@ class CleaningAgent:
             missing_cols = [col for col, count in analysis["missing_values"].items() if count > 0]
             if missing_cols:
                 reasoning.append(f"Identified {len(missing_cols)} columns with missing data.")
-                details = {}
-                for col in missing_cols:
-                    if col in analysis["numeric_columns"]:
-                        # Advanced heuristic: check skewness? For now default to Median for robustness
-                        details[col] = "median"
-                        reasoning.append(f"-> Column '{col}': Imputing with Median (Robust to outliers).")
-                    else:
-                        details[col] = "mode"
-                        reasoning.append(f"-> Column '{col}': Imputing with Mode (Categorical).")
+                details_impute = {}
+                cols_to_drop = []
                 
-                steps.append({
-                    "step": "handle_missing",
-                    "reason": "Missing data integrity check.",
-                    "action": "impute_or_drop",
-                    "details": details
-                })
+                rows_count = analysis["rows"]
+                
+                for col in missing_cols:
+                    null_count = analysis["missing_values"][col]
+                    null_ratio = null_count / rows_count
+                    
+                    if null_ratio > 0.4:
+                        cols_to_drop.append(col)
+                        reasoning.append(f"-> Column '{col}': Dropping ({null_ratio:.1%} missing values > 40% threshold).")
+                    else:
+                        if col in analysis["numeric_columns"]:
+                            details_impute[col] = "median"
+                            reasoning.append(f"-> Column '{col}': Imputing with Median (Robust to outliers).")
+                        else:
+                            details_impute[col] = "mode"
+                            reasoning.append(f"-> Column '{col}': Imputing with Mode (Categorical).")
+                
+                if cols_to_drop:
+                    steps.append({
+                        "step": "drop_columns",
+                        "reason": "Excessive missing data.",
+                        "action": "drop_columns",
+                        "columns": cols_to_drop
+                    })
+                    
+                if details_impute:
+                    steps.append({
+                        "step": "handle_missing",
+                        "reason": "Missing data integrity check.",
+                        "action": "impute_or_drop",
+                        "details": details_impute
+                    })
 
             # 2. Duplicates Strategy
             if analysis["duplicates"] > 0:

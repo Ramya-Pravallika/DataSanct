@@ -1,4 +1,5 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException, BackgroundTasks
+from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 import uvicorn
@@ -25,6 +26,10 @@ UPLOAD_DIR = "uploads"
 CLEANED_DIR = "cleaned"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 os.makedirs(CLEANED_DIR, exist_ok=True)
+
+# Mount uploads for serving images
+app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
+app.mount("/cleaned", StaticFiles(directory=CLEANED_DIR), name="cleaned")
 
 @app.get("/")
 def read_root():
@@ -95,7 +100,8 @@ async def clean_data(file_id: str, plan_override: dict = None):
             analysis = agent.analyze_tabular(df)
             plan = plan_override if plan_override else agent.generate_cleaning_plan(analysis, "tabular")
             
-            cleaned_df = CleaningOps.clean_tabular(df, plan['plan'])
+            # Clean with detailed feedback
+            cleaned_df, report = CleaningOps.clean_tabular(df, plan['plan'])
             cleaned_df.to_csv(output_path, index=False)
             
             result["stats"] = {
@@ -103,6 +109,7 @@ async def clean_data(file_id: str, plan_override: dict = None):
                 "cleaned_rows": len(cleaned_df),
                 "removed_rows": len(df) - len(cleaned_df)
             }
+            result["report"] = report
             
         elif ext in ['jpg', 'jpeg', 'png']:
             # Re-gen plan logic same as above
