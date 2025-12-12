@@ -2,6 +2,8 @@
 
 https://data-sanct.vercel.app/
 
+<img width="1024" height="572" alt="image" src="https://github.com/user-attachments/assets/9750b3a2-2a3c-45f7-b36c-7c70aafa36f2" />
+
 DataSanct is an advanced AI-powered application that accepts messy tabular (CSV/Excel) or image data and automatically cleans it using intelligent agents.
 
 ## Features
