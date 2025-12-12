@@ -75,8 +75,22 @@ async def analyze_data(file: UploadFile = File(...)):
     try:
         if ext in ['csv', 'xlsx', 'xls']:
             response["type"] = "tabular"
-            logger.info(f"Analyzing tabular data: {file_id}")
-            df = pd.read_csv(file_path) if ext == 'csv' else pd.read_excel(file_path)
+            logger.info(f"Analyzing tabular data: {file_id} (format: {ext})")
+            try:
+                if ext == 'csv':
+                    df = pd.read_csv(file_path)
+                elif ext in ['xlsx', 'xls']:
+                    # Check if openpyxl is available
+                    try:
+                        df = pd.read_excel(file_path, engine='openpyxl' if ext == 'xlsx' else None)
+                        logger.info(f"Successfully read Excel file: {file.filename}")
+                    except ImportError:
+                        logger.error("openpyxl not installed - cannot read Excel files")
+                        raise HTTPException(status_code=500, detail="Excel support not available. Please install openpyxl.")
+            except Exception as e:
+                logger.error(f"Error reading {ext.upper()} file: {str(e)}")
+                raise HTTPException(status_code=400, detail=f"Error reading {ext.upper()} file: {str(e)}")
+            
             analysis = agent.analyze_tabular(df)
             plan = agent.generate_cleaning_plan(analysis, "tabular")
             response["analysis"] = analysis
