@@ -1,10 +1,12 @@
 import { Download, RefreshCw, AlertTriangle, CheckCircle, FileText } from 'lucide-react'
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+
 export default function DataView({ type, analysis, result, onReset }) {
 
     const handleDownload = () => {
         if (result && result.download_url) {
-            window.location.href = `http://localhost:8000${result.download_url}`
+            window.location.href = `${API_URL}${result.download_url}`
         }
     }
 
@@ -126,7 +128,7 @@ export default function DataView({ type, analysis, result, onReset }) {
                         <div className="comparison-col">
                             <p style={{ textAlign: 'center', color: 'var(--text-muted)', marginBottom: '1rem', fontFamily: 'var(--font-mono)' }}>RAW INPUT</p>
                             <img
-                                src={`http://localhost:8000/uploads/${result.download_url.split('cleaned_')[1]}`}
+                                src={`${API_URL}/uploads/${result.download_url.split('cleaned_')[1]}`}
                                 className="comparison-img"
                                 alt="Original"
                             />
@@ -134,7 +136,7 @@ export default function DataView({ type, analysis, result, onReset }) {
                         <div className="comparison-col">
                             <p style={{ textAlign: 'center', color: 'var(--primary)', marginBottom: '1rem', fontFamily: 'var(--font-mono)' }}>PROCESSED OUTPUT</p>
                             <img
-                                src={`http://localhost:8000${result.download_url}`}
+                                src={`${API_URL}${result.download_url}`}
                                 className="comparison-img"
                                 style={{ boxShadow: '0 0 20px rgba(45, 106, 79, 0.1)', borderColor: 'var(--primary)' }}
                                 alt="Cleaned"

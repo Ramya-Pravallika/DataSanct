@@ -5,6 +5,8 @@ import DataView from './components/DataView'
 import axios from 'axios'
 import './index.css'
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+
 function App() {
   const [fileId, setFileId] = useState(null)
   const [status, setStatus] = useState('idle') // idle, uploading, analyzing, cleaning, done
@@ -20,7 +22,7 @@ function App() {
     try {
       // Direct analysis call
       setStatus('analyzing')
-      const res = await axios.post('http://localhost:8000/analyze', formData)
+      const res = await axios.post(`${API_URL}/analyze`, formData)
 
       setFileId(res.data.file_id)
       setAnalysis(res.data)
@@ -39,7 +41,7 @@ function App() {
     try {
       // Longer delay for "cleaning" to let the user see the cool terminal logs
       setTimeout(async () => {
-        const res = await axios.post(`http://localhost:8000/clean/${id}`)
+        const res = await axios.post(`${API_URL}/clean/${id}`)
         setCleaningResult(res.data)
         // Add reasoning to the result object for display
         // In a real app, this comes from the backend. 
