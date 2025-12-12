@@ -43,6 +43,10 @@ export default function DataView({ type, analysis, result, fileId, onReset }) {
                             <div className="stat-value">{result.stats.original_rows.toLocaleString()}</div>
                             <div className="stat-label">Original Rows</div>
                         </div>
+                        <div className="stat-card">
+                            <div className="stat-value">{analysis?.columns || 'N/A'}</div>
+                            <div className="stat-label">Total Columns</div>
+                        </div>
                         <div className="stat-card" style={{ borderColor: 'var(--accent)' }}>
                             <div className="stat-value" style={{ color: 'var(--primary)' }}>
                                 {result.stats.cleaned_rows.toLocaleString()}
@@ -56,6 +60,30 @@ export default function DataView({ type, analysis, result, fileId, onReset }) {
                             <div className="stat-label">Rows Removed</div>
                             <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
                                 {result.report.outliers_removed} Outliers • {result.report.duplicates_removed} Duplicates
+                            </div>
+                        </div>
+                        <div className="stat-card" style={{ borderColor: 'var(--error)' }}>
+                            <div className="stat-value" style={{ color: 'var(--error)' }}>
+                                {result.report.removed_columns.length}
+                            </div>
+                            <div className="stat-label">Columns Deleted</div>
+                        </div>
+                        <div className="stat-card" style={{ borderColor: 'var(--accent)' }}>
+                            <div className="stat-value" style={{ color: 'var(--primary)' }}>
+                                {result.report.imputed_columns.length}
+                            </div>
+                            <div className="stat-label">Columns Imputed</div>
+                            <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
+                                {(() => {
+                                    const mean = result.report.imputed_columns.filter(c => c.includes('(mean)')).length
+                                    const median = result.report.imputed_columns.filter(c => c.includes('(median)')).length
+                                    const mode = result.report.imputed_columns.filter(c => c.includes('(mode)')).length
+                                    const parts = []
+                                    if (mean > 0) parts.push(`${mean} Mean`)
+                                    if (median > 0) parts.push(`${median} Median`)
+                                    if (mode > 0) parts.push(`${mode} Mode`)
+                                    return parts.join(' • ') || 'None'
+                                })()}
                             </div>
                         </div>
                     </>
