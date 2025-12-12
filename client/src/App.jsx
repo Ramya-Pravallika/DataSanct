@@ -69,7 +69,9 @@ function App() {
         <div className="hero-text">
           <h1 className="hero-title">DATA SANCT</h1>
           <p className="hero-subtitle">
-            Sanctify your data. Amplify your intelligence, Created by Ramya Pravallika Chadalavada.
+            Sanctify your data. Amplify your intelligence
+            <br />
+            Created by Ramya Pravallika Chadalavada.
           </p>
         </div>
       )}
