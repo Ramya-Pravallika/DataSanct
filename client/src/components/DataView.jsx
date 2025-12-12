@@ -4,13 +4,6 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
 export default function DataView({ type, analysis, result, fileId, onReset }) {
 
-    // Debug logging
-    console.log('DataView - type:', type)
-    console.log('DataView - analysis:', analysis)
-    console.log('DataView - result:', result)
-    console.log('DataView - result.stats:', result?.stats)
-    console.log('DataView - result.report:', result?.report)
-
     const handleDownload = () => {
         if (result && result.download_url) {
             window.location.href = `${API_URL}${result.download_url}`
@@ -43,11 +36,11 @@ export default function DataView({ type, analysis, result, fileId, onReset }) {
                 </div>
             </div>
 
-            <div className="stats-grid">
-                {type === 'tabular' && result?.stats && result?.report && (
+            <div className="stats-grid" style={{ marginBottom: '2rem' }}>
+                {type === 'tabular' && (
                     <>
                         <div className="stat-card">
-                            <div className="stat-value">{result.stats.original_rows.toLocaleString()}</div>
+                            <div className="stat-value">{result?.stats?.original_rows?.toLocaleString() || 0}</div>
                             <div className="stat-label">Original Rows</div>
                         </div>
                         <div className="stat-card">
@@ -56,35 +49,36 @@ export default function DataView({ type, analysis, result, fileId, onReset }) {
                         </div>
                         <div className="stat-card" style={{ borderColor: 'var(--accent)' }}>
                             <div className="stat-value" style={{ color: 'var(--primary)' }}>
-                                {result.stats.cleaned_rows.toLocaleString()}
+                                {result?.stats?.cleaned_rows?.toLocaleString() || 0}
                             </div>
                             <div className="stat-label">Cleaned Rows</div>
                         </div>
                         <div className="stat-card" style={{ borderColor: 'var(--error)' }}>
                             <div className="stat-value" style={{ color: 'var(--error)' }}>
-                                {result.stats.removed_rows.toLocaleString()}
+                                {result?.stats?.removed_rows?.toLocaleString() || 0}
                             </div>
                             <div className="stat-label">Rows Removed</div>
                             <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
-                                {result.report.outliers_removed} Outliers • {result.report.duplicates_removed} Duplicates
+                                {result?.report?.outliers_removed || 0} Outliers • {result?.report?.duplicates_removed || 0} Duplicates
                             </div>
                         </div>
                         <div className="stat-card" style={{ borderColor: 'var(--error)' }}>
                             <div className="stat-value" style={{ color: 'var(--error)' }}>
-                                {result.report.removed_columns.length}
+                                {result?.report?.removed_columns?.length || 0}
                             </div>
                             <div className="stat-label">Columns Deleted</div>
                         </div>
                         <div className="stat-card" style={{ borderColor: 'var(--accent)' }}>
                             <div className="stat-value" style={{ color: 'var(--primary)' }}>
-                                {result.report.imputed_columns.length}
+                                {result?.report?.imputed_columns?.length || 0}
                             </div>
                             <div className="stat-label">Columns Imputed</div>
                             <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
                                 {(() => {
-                                    const mean = result.report.imputed_columns.filter(c => c.includes('(mean)')).length
-                                    const median = result.report.imputed_columns.filter(c => c.includes('(median)')).length
-                                    const mode = result.report.imputed_columns.filter(c => c.includes('(mode)')).length
+                                    const imputed = result?.report?.imputed_columns || []
+                                    const mean = imputed.filter(c => c.includes('(mean)')).length
+                                    const median = imputed.filter(c => c.includes('(median)')).length
+                                    const mode = imputed.filter(c => c.includes('(mode)')).length
                                     const parts = []
                                     if (mean > 0) parts.push(`${mean} Mean`)
                                     if (median > 0) parts.push(`${median} Median`)
