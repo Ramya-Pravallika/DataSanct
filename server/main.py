@@ -182,7 +182,17 @@ async def clean_data(file_id: str, plan_override: dict = None):
             
             # Clean with detailed feedback
             cleaned_df, report = CleaningOps.clean_tabular(df, plan['plan'])
-            cleaned_df.to_csv(output_path, index=False)
+            
+            # Save in appropriate format based on input type
+            if ext == 'zip':
+                # For ZIP files, save as CSV (simplest for download)
+                cleaned_df.to_csv(output_path, index=False)
+            elif ext in ['xlsx', 'xls']:
+                # Save Excel files as Excel
+                cleaned_df.to_excel(output_path, index=False)
+            else:
+                # Save CSV files as CSV
+                cleaned_df.to_csv(output_path, index=False)
             
             result["stats"] = {
                 "original_rows": len(df),
