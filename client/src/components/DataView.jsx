@@ -44,14 +44,26 @@ export default function DataView({ type, analysis, result, fileId, onReset }) {
                             <div className="stat-label">Original Rows</div>
                         </div>
                         <div className="stat-card">
-                            <div className="stat-value">{analysis?.columns || analysis?.columns_list?.length || 'N/A'}</div>
-                            <div className="stat-label">Total Columns</div>
+                            <div className="stat-value">{result?.stats?.original_columns || analysis?.columns || analysis?.columns_list?.length || 0}</div>
+                            <div className="stat-label">Original Columns</div>
                         </div>
                         <div className="stat-card" style={{ borderColor: 'var(--accent)' }}>
                             <div className="stat-value" style={{ color: 'var(--primary)' }}>
                                 {result?.stats?.cleaned_rows?.toLocaleString() || 0}
                             </div>
                             <div className="stat-label">Cleaned Rows</div>
+                        </div>
+                        <div className="stat-card" style={{ borderColor: 'var(--accent)' }}>
+                            <div className="stat-value" style={{ color: 'var(--primary)' }}>
+                                {result?.stats?.cleaned_columns || 0}
+                            </div>
+                            <div className="stat-label">Cleaned Columns</div>
+                        </div>
+                        <div className="stat-card" style={{ borderColor: 'var(--error)' }}>
+                            <div className="stat-value" style={{ color: 'var(--error)' }}>
+                                {result?.report?.removed_columns?.length || result?.stats?.removed_columns || 0}
+                            </div>
+                            <div className="stat-label">Columns Deleted</div>
                         </div>
                         <div className="stat-card" style={{ borderColor: 'var(--error)' }}>
                             <div className="stat-value" style={{ color: 'var(--error)' }}>
@@ -61,12 +73,6 @@ export default function DataView({ type, analysis, result, fileId, onReset }) {
                             <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
                                 {result?.report?.outliers_removed || 0} Outliers • {result?.report?.duplicates_removed || 0} Duplicates
                             </div>
-                        </div>
-                        <div className="stat-card" style={{ borderColor: 'var(--error)' }}>
-                            <div className="stat-value" style={{ color: 'var(--error)' }}>
-                                {result?.report?.removed_columns?.length || 0}
-                            </div>
-                            <div className="stat-label">Columns Deleted</div>
                         </div>
                         <div className="stat-card" style={{ borderColor: 'var(--accent)' }}>
                             <div className="stat-value" style={{ color: 'var(--primary)' }}>

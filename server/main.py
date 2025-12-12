@@ -129,8 +129,11 @@ async def clean_data(file_id: str, plan_override: dict = None):
             
             result["stats"] = {
                 "original_rows": len(df),
+                "original_columns": len(df.columns),
                 "cleaned_rows": len(cleaned_df),
-                "removed_rows": len(df) - len(cleaned_df)
+                "cleaned_columns": len(cleaned_df.columns),
+                "removed_rows": len(df) - len(cleaned_df),
+                "removed_columns": len(df.columns) - len(cleaned_df.columns)
             }
             result["report"] = report
             logger.info(f"Tabular cleaning complete. Removed {result['stats']['removed_rows']} rows.")
