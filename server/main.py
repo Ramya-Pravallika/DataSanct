@@ -136,6 +136,7 @@ async def clean_data(file_id: str, plan_override: dict = None):
                 "removed_columns": len(df.columns) - len(cleaned_df.columns)
             }
             result["report"] = report
+            result["plan"] = plan  # Include plan for frontend reasoning display
             logger.info(f"Tabular cleaning complete. Removed {result['stats']['removed_rows']} rows.")
             
         elif ext in ['jpg', 'jpeg', 'png']:

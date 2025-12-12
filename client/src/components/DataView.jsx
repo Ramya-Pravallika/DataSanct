@@ -44,7 +44,7 @@ export default function DataView({ type, analysis, result, fileId, onReset }) {
                             <div className="stat-label">Original Rows</div>
                         </div>
                         <div className="stat-card">
-                            <div className="stat-value">{result?.stats?.original_columns || analysis?.columns || analysis?.columns_list?.length || 0}</div>
+                            <div className="stat-value">{result?.stats?.original_columns || 0}</div>
                             <div className="stat-label">Original Columns</div>
                         </div>
                         <div className="stat-card" style={{ borderColor: 'var(--accent)' }}>
