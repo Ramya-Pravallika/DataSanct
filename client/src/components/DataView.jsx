@@ -2,7 +2,7 @@ import { Download, RefreshCw, AlertTriangle, CheckCircle, FileText } from 'lucid
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
-export default function DataView({ type, analysis, result, onReset }) {
+export default function DataView({ type, analysis, result, fileId, onReset }) {
 
     const handleDownload = () => {
         if (result && result.download_url) {
@@ -128,7 +128,11 @@ export default function DataView({ type, analysis, result, onReset }) {
                         <div className="comparison-col">
                             <p style={{ textAlign: 'center', color: 'var(--text-muted)', marginBottom: '1rem', fontFamily: 'var(--font-mono)' }}>RAW INPUT</p>
                             <img
-                                src={`${API_URL}/uploads/${result.download_url.split('cleaned_')[1]}`}
+                                src={(() => {
+                                    // Extract file extension from download_url (e.g., /download/cleaned_abc123.jpg -> jpg)
+                                    const ext = result.download_url.split('.').pop()
+                                    return `${API_URL}/uploads/${fileId}.${ext}`
+                                })()}
                                 className="comparison-img"
                                 alt="Original"
                             />

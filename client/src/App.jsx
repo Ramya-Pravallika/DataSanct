@@ -89,6 +89,7 @@ function App() {
           type={dataType}
           analysis={analysis}
           result={finalResult}
+          fileId={fileId}
           onReset={() => setStatus('idle')}
         />
       )}
