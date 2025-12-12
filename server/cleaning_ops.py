@@ -60,6 +60,25 @@ class CleaningOps:
                 removed = initial_rows - len(df_clean)
                 report["outliers_removed"] += removed
                 report["dropped_rows"] += removed
+
+            elif action == "clean_text":
+                cols = step.get("columns", [])
+                cleaned_count = 0
+                for col in cols:
+                    if col not in df_clean.columns: continue
+                    # Check if column is object type/string
+                    if df_clean[col].dtype == 'object':
+                        # We can count how many actually changed, or just do it
+                        # For efficiency, we just do it. But to report, let's verify.
+                        # Simple approach: applied to all, assume success.
+                        # Or precise:
+                        # before_hash = df_clean[col].hash_values? No.
+                        df_clean[col] = df_clean[col].astype(str).str.strip()
+                        cleaned_count += 1
+                
+                if cleaned_count > 0:
+                    report["standardized_columns"] = report.get("standardized_columns", [])
+                    report["standardized_columns"].extend(cols)
                     
         return df_clean, report
 

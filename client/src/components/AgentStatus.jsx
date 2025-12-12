@@ -52,13 +52,13 @@ export default function AgentStatus({ status }) {
             </div>
 
             <div style={{
-                background: '#f8f9fa',
+                background: 'var(--bg-secondary)',
                 borderRadius: '0.5rem',
                 padding: '1.5rem',
                 fontFamily: 'var(--font-mono)',
                 border: '1px solid var(--border)',
                 minHeight: '300px',
-                color: '#334155'
+                color: 'var(--text-main)'
             }}>
                 <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem', opacity: 0.8 }}>
                     <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#ef4444' }}></div>

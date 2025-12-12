@@ -1,67 +1,70 @@
-import httpx
-import asyncio
+import requests
+import time
 import os
 
 BASE_URL = "http://localhost:8000"
-TEST_FILE = "test_data.csv"
+TEST_FILE = "server/messy_data.csv"
 
-async def run_test():
-    async with httpx.AsyncClient() as client:
-        print(f"Testing against {BASE_URL}...")
+def test_cleaning_flow():
+    print(f"Testing cleaning flow with {TEST_FILE}...")
+    
+    # 1. Upload & Analyze
+    with open(TEST_FILE, 'rb') as f:
+        files = {'file': (os.path.basename(TEST_FILE), f, 'text/csv')}
+        response = requests.post(f"{BASE_URL}/analyze", files=files)
+    
+    if response.status_code != 200:
+        print("Analysis failed:", response.text)
+        return
         
-        # 1. Analyze
-        print(f"\n[1] Uploading & Analyzing {TEST_FILE}...")
-        files = {'file': (TEST_FILE, open(TEST_FILE, 'rb'), 'text/csv')}
-        try:
-            r = await client.post(f"{BASE_URL}/analyze", files=files)
-            r.raise_for_status()
-            data = r.json()
-            print("Response:", data)
-            file_id = data.get("file_id")
-            assert file_id, "File ID not returned"
-            print("analysis['missing_values']:", data['analysis']['missing_values'])
-            assert data['analysis']['missing_values']['age'] > 0, "Failed to detect missing values"
-            print("[SUCCESS] Analysis Successful")
-        except Exception as e:
-            print(f"[FAILED] Analysis Failed: {e}")
-            return
+    data = response.json()
+    file_id = data['file_id']
+    print(f"Analysis complete. File ID: {file_id}")
+    print("DEBUG: Analysis Data:", data.get('analysis'))
+    
+    # Verify clean_text step is in plan
+    plan_steps = [s['step'] for s in data['plan']['plan']]
+    if 'clean_text' in plan_steps:
+        print("SUCCESS: 'clean_text' step found in generated plan.")
+    else:
+        print("FAILURE: 'clean_text' step MISSING from plan.")
+        print("Plan:", data['plan'])
 
-        # 2. Clean
-        print(f"\n[2] Cleaning File ID: {file_id}...")
-        try:
-            r = await client.post(f"{BASE_URL}/clean/{file_id}")
-            r.raise_for_status()
-            result = r.json()
-            print("Response:", result)
-            assert result['status'] == 'success'
-            download_url = result['download_url']
-            print("[SUCCESS] Cleaning Triggered Successfully")
-        except Exception as e:
-            print(f"[FAILED] Cleaning Failed: {e}")
-            return
+    # 2. Clean
+    print(f"Requesting cleaning for {file_id}...")
+    clean_res = requests.post(f"{BASE_URL}/clean/{file_id}")
+    
+    if clean_res.status_code != 200:
+        print("Cleaning failed:", clean_res.text)
+        return
+        
+    clean_data = clean_res.json()
+    print("Cleaning complete. Report:", clean_data.get('report'))
+    
+    # 3. Download and Verify Content
+    download_url = clean_data['download_url'] # e.g. /download/cleaned_messy_data.csv
+    print(f"Downloading result from {download_url}...")
+    
+    file_content = requests.get(f"{BASE_URL}{download_url}").text
+    print("\n--- Cleaned File Content ---")
+    print(file_content)
+    print("----------------------------")
+    
+    # Simple check: "  Alice  " should become "Alice"
+    if "Alice" in file_content and "  Alice  " not in file_content:
+        print("SUCCESS: Whitespace stripped correctly.")
+    else:
+        print("FAILURE: Whitespace might still be present.")
 
-        # 3. Download
-        print(f"\n[3] Downloading Cleaned Data from {download_url}...")
-        try:
-            # Fix URL if relative
-            if download_url.startswith("/"):
-                url = f"{BASE_URL}{download_url}"
-            else:
-                url = download_url
-                
-            r = await client.get(url)
-            r.raise_for_status()
-            content = r.text
-            print("Cleaned Content Preview:", content.splitlines()[:5])
-            print("[SUCCESS] Download Successful")
-        except Exception as e:
-            print(f"[FAILED] Download Failed: {e}")
-            return
-            
-        print("\n ALL BACKEND TESTS PASSED ")
+    print("\n--- DEBUG INFO ---")
+    print("Categorical Columns found:", data.get('analysis', {}).get('categorical_columns'))
+    print("Full Analysis Keys:", list(data.get('analysis', {}).keys()))
+    print("--------------------")
 
 if __name__ == "__main__":
-    if not os.path.exists(TEST_FILE):
-        print("Test file not found!")
-    else:
-        asyncio.run(run_test())
+    # Ensure server is running before running this
+    try:
+        test_cleaning_flow()
+    except Exception as e:
+        print(f"Test failed with error: {e}")
+        print("Make sure the backend server is running on port 8000")

@@ -8,8 +8,20 @@ import shutil
 import pandas as pd
 import uuid
 from typing import List
+import logging
 from agent import agent
 from cleaning_ops import CleaningOps
+
+# Configure Logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler("server.log"),
+        logging.StreamHandler()
+    ]
+)
+logger = logging.getLogger(__name__)
 
 app = FastAPI(title="Intelligent Data Cleaning Agent")
 
@@ -46,6 +58,8 @@ async def analyze_data(file: UploadFile = File(...)):
     ext = file.filename.split('.')[-1].lower()
     file_path = f"{UPLOAD_DIR}/{file_id}.{ext}"
     
+    logger.info(f"Received file upload: {file.filename} (ID: {file_id})")
+
     with open(file_path, "wb+") as buffer:
         shutil.copyfileobj(file.file, buffer)
         
@@ -57,20 +71,27 @@ async def analyze_data(file: UploadFile = File(...)):
         "plan": {}
     }
     
-    if ext in ['csv', 'xlsx', 'xls']:
-        response["type"] = "tabular"
-        df = pd.read_csv(file_path) if ext == 'csv' else pd.read_excel(file_path)
-        analysis = agent.analyze_tabular(df)
-        plan = agent.generate_cleaning_plan(analysis, "tabular")
-        response["analysis"] = analysis
-        response["plan"] = plan
-        
-    elif ext in ['jpg', 'jpeg', 'png']:
-        response["type"] = "image"
-        analysis = agent.analyze_image(file_path)
-        plan = agent.generate_cleaning_plan(analysis, "image")
-        response["analysis"] = analysis
-        response["plan"] = plan
+    try:
+        if ext in ['csv', 'xlsx', 'xls']:
+            response["type"] = "tabular"
+            logger.info(f"Analyzing tabular data: {file_id}")
+            df = pd.read_csv(file_path) if ext == 'csv' else pd.read_excel(file_path)
+            analysis = agent.analyze_tabular(df)
+            plan = agent.generate_cleaning_plan(analysis, "tabular")
+            response["analysis"] = analysis
+            response["plan"] = plan
+            
+        elif ext in ['jpg', 'jpeg', 'png']:
+            response["type"] = "image"
+            logger.info(f"Analyzing image data: {file_id}")
+            analysis = agent.analyze_image(file_path)
+            plan = agent.generate_cleaning_plan(analysis, "image")
+            response["analysis"] = analysis
+            response["plan"] = plan
+            
+    except Exception as e:
+        logger.error(f"Error analyzing file {file_id}: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
         
     return response
 
@@ -83,6 +104,7 @@ async def clean_data(file_id: str, plan_override: dict = None):
     files = os.listdir(UPLOAD_DIR)
     target_file = next((f for f in files if f.startswith(file_id)), None)
     if not target_file:
+        logger.warning(f"File not found for cleaning: {file_id}")
         raise HTTPException(status_code=404, detail="File not found")
         
     input_path = f"{UPLOAD_DIR}/{target_file}"
@@ -90,6 +112,7 @@ async def clean_data(file_id: str, plan_override: dict = None):
     output_filename = f"cleaned_{target_file}"
     output_path = f"{CLEANED_DIR}/{output_filename}"
     
+    logger.info(f"Starting cleaning process for: {target_file}")
     result = {"status": "success", "download_url": f"/download/{output_filename}"}
     
     try:
@@ -110,6 +133,7 @@ async def clean_data(file_id: str, plan_override: dict = None):
                 "removed_rows": len(df) - len(cleaned_df)
             }
             result["report"] = report
+            logger.info(f"Tabular cleaning complete. Removed {result['stats']['removed_rows']} rows.")
             
         elif ext in ['jpg', 'jpeg', 'png']:
             # Re-gen plan logic same as above
@@ -117,8 +141,10 @@ async def clean_data(file_id: str, plan_override: dict = None):
             plan = plan_override if plan_override else agent.generate_cleaning_plan(analysis, "image")
             
             CleaningOps.clean_image(input_path, output_path, plan['plan'])
+            logger.info(f"Image cleaning complete.")
             
     except Exception as e:
+        logger.error(f"Error cleaning file {file_id}: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
         
     return result
@@ -127,7 +153,9 @@ async def clean_data(file_id: str, plan_override: dict = None):
 async def download_file(filename: str):
     file_path = f"{CLEANED_DIR}/{filename}"
     if os.path.exists(file_path):
+        logger.info(f"Downloading file: {filename}")
         return FileResponse(file_path)
+    logger.warning(f"Download failed - file not found: {filename}")
     raise HTTPException(status_code=404, detail="File not found")
 
 if __name__ == "__main__":

@@ -41,14 +41,14 @@ export default function DataView({ type, analysis, result, onReset }) {
                             <div className="stat-value">{result.stats.original_rows.toLocaleString()}</div>
                             <div className="stat-label">Original Rows</div>
                         </div>
-                        <div className="stat-card" style={{ borderColor: '#d1fae5' }}>
-                            <div className="stat-value" style={{ color: '#059669' }}>
+                        <div className="stat-card" style={{ borderColor: 'var(--accent)' }}>
+                            <div className="stat-value" style={{ color: 'var(--primary)' }}>
                                 {result.stats.cleaned_rows.toLocaleString()}
                             </div>
                             <div className="stat-label">Cleaned Rows</div>
                         </div>
-                        <div className="stat-card" style={{ borderColor: '#fee2e2' }}>
-                            <div className="stat-value" style={{ color: '#dc2626' }}>
+                        <div className="stat-card" style={{ borderColor: 'var(--error)' }}>
+                            <div className="stat-value" style={{ color: 'var(--error)' }}>
                                 {result.stats.removed_rows.toLocaleString()}
                             </div>
                             <div className="stat-label">Rows Removed</div>
@@ -60,8 +60,8 @@ export default function DataView({ type, analysis, result, onReset }) {
                 )}
 
                 {type === 'image' && (
-                    <div className="stat-card" style={{ borderColor: '#dbeafe' }}>
-                        <div className="stat-value" style={{ color: '#2563eb' }}>100%</div>
+                    <div className="stat-card" style={{ borderColor: 'var(--accent)' }}>
+                        <div className="stat-value" style={{ color: 'var(--primary)' }}>100%</div>
                         <div className="stat-label">Noise Filtered</div>
                     </div>
                 )}
@@ -69,18 +69,18 @@ export default function DataView({ type, analysis, result, onReset }) {
 
             <div className="card">
                 <h3 style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-                    <FileText className="text-muted" /> Agent Report
+                    <FileText style={{ color: 'var(--text-muted)' }} /> Agent Report
                 </h3>
 
                 {/* Tabular Cleanup Report */}
                 {type === 'tabular' && result?.report && (
                     <div style={{ marginBottom: '2rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                         {result.report.removed_columns.length > 0 && (
-                            <div style={{ background: '#fef2f2', padding: '1rem', borderRadius: '0.5rem', border: '1px solid #fee2e2' }}>
-                                <h4 style={{ margin: '0 0 0.5rem 0', color: '#dc2626', fontSize: '0.9rem' }}>REMOVED COLUMNS (High Nulls)</h4>
+                            <div style={{ background: '#fff1f2', padding: '1rem', borderRadius: '0.5rem', border: '1px solid var(--error)' }}>
+                                <h4 style={{ margin: '0 0 0.5rem 0', color: 'var(--error)', fontSize: '0.9rem' }}>REMOVED COLUMNS (High Nulls)</h4>
                                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
                                     {result.report.removed_columns.map(col => (
-                                        <span key={col} style={{ background: 'white', padding: '0.2rem 0.6rem', borderRadius: '4px', fontSize: '0.8rem', color: '#7f1d1d', border: '1px solid #fecaca' }}>
+                                        <span key={col} style={{ background: 'white', padding: '0.2rem 0.6rem', borderRadius: '4px', fontSize: '0.8rem', color: 'var(--error)', border: '1px solid var(--error)' }}>
                                             {col}
                                         </span>
                                     ))}
@@ -89,11 +89,11 @@ export default function DataView({ type, analysis, result, onReset }) {
                         )}
 
                         {result.report.imputed_columns.length > 0 && (
-                            <div style={{ background: '#eff6ff', padding: '1rem', borderRadius: '0.5rem', border: '1px solid #dbeafe' }}>
-                                <h4 style={{ margin: '0 0 0.5rem 0', color: '#2563eb', fontSize: '0.9rem' }}>IMPUTED COLUMNS</h4>
+                            <div style={{ background: 'var(--bg-secondary)', padding: '1rem', borderRadius: '0.5rem', border: '1px solid var(--accent)' }}>
+                                <h4 style={{ margin: '0 0 0.5rem 0', color: 'var(--primary)', fontSize: '0.9rem' }}>IMPUTED COLUMNS</h4>
                                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
                                     {result.report.imputed_columns.map(col => (
-                                        <span key={col} style={{ background: 'white', padding: '0.2rem 0.6rem', borderRadius: '4px', fontSize: '0.8rem', color: '#1e3a8a', border: '1px solid #bfdbfe' }}>
+                                        <span key={col} style={{ background: 'white', padding: '0.2rem 0.6rem', borderRadius: '4px', fontSize: '0.8rem', color: 'var(--primary)', border: '1px solid var(--accent)' }}>
                                             {col}
                                         </span>
                                     ))}
@@ -105,7 +105,7 @@ export default function DataView({ type, analysis, result, onReset }) {
 
                 {/* Logic Reasoning Display */}
                 {result?.plan?.reasoning && (
-                    <div style={{ marginBottom: '2rem', background: '#f8fafc', padding: '1.5rem', borderRadius: '0.75rem', border: '1px solid #e2e8f0' }}>
+                    <div style={{ marginBottom: '2rem', background: 'var(--bg-secondary)', padding: '1.5rem', borderRadius: '0.75rem', border: '1px solid var(--border)' }}>
                         <h4 style={{ margin: '0 0 1rem 0', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', fontSize: '0.9rem' }}>EXECUTION LOG:</h4>
                         <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontFamily: 'var(--font-mono)', color: 'var(--text-main)', fontSize: '0.9rem' }}>
                             {result.plan.reasoning.map((r, i) => (
@@ -113,7 +113,7 @@ export default function DataView({ type, analysis, result, onReset }) {
                                     <span style={{ color: 'var(--primary)' }}>{'>'}</span> {r}
                                 </li>
                             ))}
-                            <li style={{ color: '#059669', marginTop: '1rem', display: 'flex', gap: '0.8rem' }}>
+                            <li style={{ color: 'var(--primary)', marginTop: '1rem', display: 'flex', gap: '0.8rem' }}>
                                 <span>{'>'}</span> STATUS: OPTIMIZED
                             </li>
                         </ul>
@@ -132,11 +132,11 @@ export default function DataView({ type, analysis, result, onReset }) {
                             />
                         </div>
                         <div className="comparison-col">
-                            <p style={{ textAlign: 'center', color: '#059669', marginBottom: '1rem', fontFamily: 'var(--font-mono)' }}>PROCESSED OUTPUT</p>
+                            <p style={{ textAlign: 'center', color: 'var(--primary)', marginBottom: '1rem', fontFamily: 'var(--font-mono)' }}>PROCESSED OUTPUT</p>
                             <img
                                 src={`http://localhost:8000${result.download_url}`}
                                 className="comparison-img"
-                                style={{ boxShadow: '0 0 20px rgba(16, 185, 129, 0.1)', borderColor: '#059669' }}
+                                style={{ boxShadow: '0 0 20px rgba(45, 106, 79, 0.1)', borderColor: 'var(--primary)' }}
                                 alt="Cleaned"
                             />
                         </div>

@@ -67,6 +67,17 @@ class CleaningAgent:
         reasoning = []
         
         if data_type == "tabular":
+            # 0. Text Cleaning Strategy (New)
+            if "categorical_columns" in analysis and analysis["categorical_columns"]:
+                text_cols = analysis["categorical_columns"]
+                reasoning.append(f"Analyzing {len(text_cols)} text columns for consistency.")
+                steps.append({
+                    "step": "clean_text",
+                    "reason": "Standardizing text formats (trimming whitespace).",
+                    "action": "clean_text",
+                    "columns": text_cols
+                })
+
             # 1. Missing Values Strategy
             missing_cols = [col for col, count in analysis["missing_values"].items() if count > 0]
             if missing_cols:
