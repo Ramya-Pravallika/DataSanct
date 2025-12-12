@@ -46,7 +46,7 @@ export default function UploadPath({ onUpload }) {
                     type="file"
                     style={{ display: 'none' }}
                     onChange={handleChange}
-                    accept=".csv,.xlsx,.jpg,.jpeg,.png"
+                    accept=".csv,.xlsx,.xls,.zip,.jpg,.jpeg,.png"
                 />
 
                 <div style={{ position: 'relative', display: 'inline-block' }}>
@@ -56,7 +56,7 @@ export default function UploadPath({ onUpload }) {
 
                 <h2 style={{ margin: '0 0 1rem 0', fontSize: '1.8rem' }}>Initiate Data Sequence</h2>
                 <p style={{ color: 'var(--text-muted)', maxWidth: '400px', margin: '0 auto', fontSize: '1.1rem' }}>
-                    Drag & Drop your raw datasets (CSV, Excel) or visual assets (Images) here.
+                    Drag & Drop your raw datasets (CSV, Excel, ZIP) or visual assets (Images) here.
                 </p>
 
                 <div style={{ marginTop: '3rem', display: 'flex', justifyContent: 'center', gap: '3rem' }}>

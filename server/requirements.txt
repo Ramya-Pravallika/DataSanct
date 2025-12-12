@@ -9,4 +9,5 @@ Pillow
 scikit-learn
 google-generativeai
 openai
+openpyxl
 python-dotenv

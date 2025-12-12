@@ -9,6 +9,7 @@ import pandas as pd
 import uuid
 from typing import List
 import logging
+import zipfile
 from agent import agent
 from cleaning_ops import CleaningOps
 
@@ -81,6 +82,45 @@ async def analyze_data(file: UploadFile = File(...)):
             response["analysis"] = analysis
             response["plan"] = plan
             
+        elif ext == 'zip':
+            # Extract and process first CSV/Excel file found
+            response["type"] = "tabular"
+            logger.info(f"Processing ZIP file: {file_id}")
+            
+            try:
+                with zipfile.ZipFile(file_path, 'r') as zip_ref:
+                    # Find first CSV or Excel file
+                    tabular_file = None
+                    for filename in zip_ref.namelist():
+                        # Skip directories and hidden files
+                        if filename.endswith('/') or filename.startswith('__MACOSX'):
+                            continue
+                        file_ext = filename.split('.')[-1].lower()
+                        if file_ext in ['csv', 'xlsx', 'xls']:
+                            tabular_file = filename
+                            break
+                    
+                    if not tabular_file:
+                        raise HTTPException(status_code=400, detail="No CSV or Excel file found in ZIP archive")
+                    
+                    # Extract to temp location
+                    extracted_ext = tabular_file.split('.')[-1].lower()
+                    extracted_path = f"{UPLOAD_DIR}/{file_id}_extracted.{extracted_ext}"
+                    with zip_ref.open(tabular_file) as source, open(extracted_path, 'wb') as target:
+                        target.write(source.read())
+                    
+                    # Read and analyze
+                    df = pd.read_csv(extracted_path) if extracted_ext == 'csv' else pd.read_excel(extracted_path)
+                    analysis = agent.analyze_tabular(df)
+                    plan = agent.generate_cleaning_plan(analysis, "tabular")
+                    response["analysis"] = analysis
+                    response["plan"] = plan
+                    response["extracted_file"] = tabular_file
+                    logger.info(f"Extracted and analyzed: {tabular_file}")
+            except zipfile.BadZipFile:
+                logger.error(f"Invalid ZIP file: {file_id}")
+                raise HTTPException(status_code=400, detail="Invalid ZIP file")
+            
         elif ext in ['jpg', 'jpeg', 'png']:
             response["type"] = "image"
             logger.info(f"Analyzing image data: {file_id}")
@@ -116,8 +156,25 @@ async def clean_data(file_id: str, plan_override: dict = None):
     result = {"status": "success", "download_url": f"/download/{output_filename}"}
     
     try:
-        if ext in ['csv']:
-            df = pd.read_csv(input_path)
+        # Handle different file types
+        if ext == 'zip':
+            # Find the extracted file
+            extracted_files = [f for f in os.listdir(UPLOAD_DIR) if f.startswith(f"{file_id}_extracted")]
+            if extracted_files:
+                extracted_path = f"{UPLOAD_DIR}/{extracted_files[0]}"
+                extracted_ext = extracted_files[0].split('.')[-1].lower()
+                df = pd.read_csv(extracted_path) if extracted_ext == 'csv' else pd.read_excel(extracted_path)
+                logger.info(f"Processing extracted file from ZIP: {extracted_files[0]}")
+            else:
+                raise HTTPException(status_code=404, detail="Extracted file not found. Please re-upload the ZIP file.")
+        elif ext in ['csv', 'xlsx', 'xls']:
+            df = pd.read_csv(input_path) if ext == 'csv' else pd.read_excel(input_path)
+            logger.info(f"Processing {ext.upper()} file")
+        else:
+            raise HTTPException(status_code=400, detail=f"Unsupported file type: {ext}")
+        
+        
+        if ext in ['csv', 'xlsx', 'xls', 'zip']:
             # Re-generate plan if not provided (or retrieve from state - simplifying here)
             # ideally we pass the plan from frontend, but for now re-gen or use default
             analysis = agent.analyze_tabular(df)
