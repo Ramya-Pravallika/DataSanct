@@ -4,6 +4,13 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
 export default function DataView({ type, analysis, result, fileId, onReset }) {
 
+    // Debug logging
+    console.log('DataView - type:', type)
+    console.log('DataView - analysis:', analysis)
+    console.log('DataView - result:', result)
+    console.log('DataView - result.stats:', result?.stats)
+    console.log('DataView - result.report:', result?.report)
+
     const handleDownload = () => {
         if (result && result.download_url) {
             window.location.href = `${API_URL}${result.download_url}`
