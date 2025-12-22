@@ -36,25 +36,23 @@ function App() {
     }
   }
 
+  // Helper delay function
+  const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms))
+
   const startCleaning = async (id, type) => {
     setStatus('cleaning')
     try {
       // Longer delay for "cleaning" to let the user see the cool terminal logs
-      setTimeout(async () => {
-        const res = await axios.post(`${API_URL}/clean/${id}`)
-        setCleaningResult(res.data)
-        // Add reasoning to the result object for display
-        // In a real app, this comes from the backend. 
-        // We hacked agent.py to return it in the plan, but clean endpoint returns stats.
-        // Let's pass the plan we got from analysis to the result view for simplicity if needed,
-        // but better is to update the cleaning_ops to return specific steps taken.
-        // For now, we will merge the analysis plan into the result for display purposes.
-
-        // Wait a bit more for "finishing" effect
-        setTimeout(() => setStatus('done'), 1500)
-      }, 3000)
+      await delay(3000)
+      
+      const res = await axios.post(`${API_URL}/clean/${id}`)
+      setCleaningResult(res.data)
+      
+      // Wait a bit more for "finishing" effect
+      await delay(1500)
+      setStatus('done')
     } catch (err) {
-      console.error(err)
+      console.error("Cleaning failed:", err)
       setStatus('error')
     }
   }
